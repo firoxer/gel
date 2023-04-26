@@ -1,0 +1,21 @@
+#!/usr/bin/env lua
+
+require("src.util")
+
+local gel = require("src")
+
+local function usage()
+  io.stderr:write("usage: " .. arg[0] .. " source\n")
+  os.exit(64)
+end
+
+if #arg ~= 1 then
+  usage()
+end
+
+local source_path = arg[1]
+local source_file = io.open(source_path, "r")
+local source = source_file:read("*a")
+
+local ast = gel.read(source)
+tr(ast)

@@ -1,0 +1,14 @@
+(let (fizzbuzz* (fn (n limit)
+                  (when (< n limit)
+                    (let (fizz? (= 0 (% n 3))
+                          buzz? (= 0 (% n 5))
+                          to-print (match true
+                                     (and fizz? buzz?) "fizzbuzz"
+                                     fizz? "fizz"
+                                     buzz? "buzz"
+                                     :else n))
+                      (println to-print)
+                      (fizzbuzz (+ 1 n) limit))))
+      fizzbuzz (fn (n)
+                 (fizzbuzz* 0 n)))
+  (fizzbuzz 30))
