@@ -1,3 +1,5 @@
+local qol = require("src.qol")
+
 local symbol_char = "%*%-%?%+%%!<>=a-zA-Z0-9"
 
 local token_rules = {
@@ -15,23 +17,21 @@ local token_rules = {
   { "whitespace", "^([ \n\t]+)" }
 }
 
-local function match_to_token(class, match)
-  if class == "whitespace" or class == "comment" then
-    -- Skip
-  elseif class == "number" then
-    return { class = class, literal = tonumber(match) }
+local function match_to_literal(class, match)
+  if class == "number" then
+    return tonumber(match)
   elseif class == "boolean" then
-    return { class = class, literal = match == "true" }
+    return match == "true"
   elseif class == "string" then
-    return { class = class, literal = match:sub(2, -2) }
+    return match:sub(2, -2)
   elseif class == "keyword" then
-    return { class = class, literal = match:sub(2) }
+    return match:sub(2)
   elseif class == "symbol" then
-    return { class = class, literal = match }
+    return match
   elseif class == "parenstart" or class == "parenend" then
-    return { class = class }
+    return nil
   elseif class == "nil" then
-    return { class = class }
+    return nil
   else
     error("unknown class: " .. class)
   end
@@ -39,6 +39,8 @@ end
 
 local function tokenize(source)
   local index = 1
+  local line_number = 1
+  local col_number = 1
 
   local function attempt_match()
     for _, rule in ipairs(token_rules) do
@@ -46,13 +48,22 @@ local function tokenize(source)
 
       local match = source:match(pattern, index)
       if match then
-        local token = match_to_token(class, match)
+        index = index + match:len()
 
-        if token then
+        local newlines = #collect(match:gmatch("\n"))
+        line_number = line_number + newlines
+        col_number = newlines > 0 and 1 or (col_number + match:len())
+
+        if class ~= "whitespace" and class ~= "comment" then
+          local token = {
+            class = class,
+            literal = match_to_literal(class, match),
+            line_number = line_number,
+            col_number = col_number,
+          }
+
           coroutine.yield(token)
         end
-
-        index = index + match:len()
 
         return
       end
@@ -102,5 +113,13 @@ return function(source)
   end)
 
   local token = next_token()
-  return parse_expression(token, next_token)
+  local expr = parse_expression(token, next_token)
+
+  local unexpected_token = next_token()
+  if unexpected_token then
+    qol.display_token(source, unexpected_token)
+    error("unexpected further source after end of first expression")
+  end
+
+  return expr
 end
