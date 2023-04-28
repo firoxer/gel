@@ -9,13 +9,25 @@ local function usage()
   os.exit(64)
 end
 
-if #arg ~= 1 then
+if #arg == 0 then
+  while true do
+    io.stdout:write("> ")
+    local line = io.read()
+
+    if line == "" then break end
+
+    local ast = gel.read(line)
+    tr(ast)
+  end
+  print("bye!")
+elseif #arg == 1 then
+  local source_path = arg[1]
+  local source_file = io.open(source_path, "r")
+  local source = source_file:read("*a")
+
+  local ast = gel.read(source)
+
+  tr(ast)
+else
   usage()
 end
-
-local source_path = arg[1]
-local source_file = io.open(source_path, "r")
-local source = source_file:read("*a")
-
-local ast = gel.read(source)
-tr(ast)
