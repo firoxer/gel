@@ -3,6 +3,7 @@
 require("src.util")
 
 local gel = require("src")
+local qol = require("src.qol")
 
 local function usage()
   io.stderr:write("usage: " .. arg[0] .. " source\n")
@@ -16,8 +17,10 @@ if #arg == 0 then
 
     if line == "" then break end
 
+    qol.set_source(line)
     local ast = gel.read(line)
-    tr(ast)
+    local result = gel.eval(ast)
+    prettyprint(result)
   end
   print("bye!")
 elseif #arg == 1 then
@@ -25,9 +28,10 @@ elseif #arg == 1 then
   local source_file = io.open(source_path, "r")
   local source = source_file:read("*a")
 
+  qol.set_source(source) -- TODO
   local ast = gel.read(source)
-
-  tr(ast)
+  local result = gel.eval(ast)
+  prettyprint(result)
 else
   usage()
 end

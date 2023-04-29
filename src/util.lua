@@ -1,16 +1,16 @@
-tr_inner = nil -- Forward declaration
+prettyprint = nil -- Forward declaration
 
 local function indent(depth)
   io.stderr:write(("  "):rep(depth))
 end
 
-local printers = {
+local prettyprinters = {
   ["table"] = function(x, depth)
     io.stderr:write("{\n")
     if x[1] ~= nil then
       for _, v in ipairs(x) do
         indent(depth)
-        tr_inner(v, depth + 1)
+        prettyprint(v, depth + 1)
         io.stderr:write(",\n")
       end
     else
@@ -18,7 +18,7 @@ local printers = {
         indent(depth)
         io.stderr:write(tostring(k))
         io.stderr:write(" = ")
-        tr_inner(v, depth + 1)
+        prettyprint(v, depth + 1)
         io.stderr:write(",\n")
       end
     end
@@ -44,21 +44,22 @@ local printers = {
   end
 }
 
-function tr_inner(x, depth)
-  local printer = printers[type(x)]
+function prettyprint(x, depth)
+  local printer = prettyprinters[type(x)]
 
   if not printer then
     error("unknown type: " .. type(x))
   end
 
   printer(x, depth)
+  io.stderr:write("\n")
 end
 
-function tr(x) -- trace
+function trace(x)
   local debug_info = debug.getinfo(2)
   io.stderr:write(debug_info.short_src, ":", debug_info.currentline, ": ")
 
-  tr_inner(x, 1)
+  prettyprint(x, 1)
   io.stderr:write("\n")
 end
 
@@ -70,4 +71,37 @@ function collect(coro)
   end
 
   return tbl
+end
+
+function merge(tbl1, tbl2)
+  local tbl3 = {}
+
+  for k, v in pairs(tbl1) do
+    tbl3[k] = v
+  end
+  for k, v in pairs(tbl2) do
+    tbl3[k] = v
+  end
+
+  return tbl3
+end
+
+function shallowcopy(tbl)
+  local new = {}
+  for k, v in pairs(tbl) do
+    new[k] = tbl[k]
+  end
+  return new
+end
+
+function slice(tbl, from, to)
+  if to == nil then
+    to = #tbl
+  end
+  
+  local sliced = {}
+  for i = from, to do
+    table.insert(sliced, tbl[i])
+  end
+  return sliced
 end

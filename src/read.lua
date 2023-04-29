@@ -92,7 +92,7 @@ local function parse_list(token, next_token)
     token = next_token()
   end
 
-  return { class = "list", elements = elements }
+  return merge(token, { class = "list", elements = elements })
 end
 
 parse_expression = function(token, next_token)
@@ -117,7 +117,7 @@ return function(source)
 
   local unexpected_token = next_token()
   if unexpected_token then
-    qol.display_token(source, unexpected_token)
+    qol.display_token(unexpected_token)
     error("unexpected further source after end of first expression")
   end
 
