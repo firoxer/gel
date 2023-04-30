@@ -12,15 +12,15 @@ local specials = {
     assert(bindings_list.class == "list")
     assert(#bindings_list.elements % 2 == 0)
 
-    local new_env = shallowcopy(env)
+    local new_env = { ["&parent"] = env }
     for i = 1, #bindings_list.elements, 2 do
-      local symbol = bindings_list.elements[i]
-      local value = bindings_list.elements[i + 1]
+      local symbol = bindings_list.elements[i].literal
+      local value = bindings_list.elements[i + 1].literal
 
       new_env[symbol] = value
     end
 
-    eval(new_env, body)
+    return eval(new_env, body)
   end
 }
 
@@ -36,6 +36,16 @@ local function call(env, node)
     return predefined[fn.literal](table.unpack(args))
   else
     error("todo")
+  end
+end
+
+local function resolve(env, symbol)
+  if env[symbol] then
+    return env[symbol]
+  elseif env["&parent"] then
+    return resolve(env["&parent"], symbol)
+  else
+    error("could not resolve symbol: " .. symbol)
   end
 end
 
@@ -55,7 +65,7 @@ eval = function(env, node)
       return call(env, node)
     end
   elseif node.class == "symbol" then
-    return resolve(node.literal)
+    return resolve(env, node.literal)
   elseif node.class == "number" then
     return node.literal
   else
