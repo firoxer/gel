@@ -1,0 +1,3 @@
+(let (double (fn (a)
+               (+ a a)))
+  (double (double 2)))

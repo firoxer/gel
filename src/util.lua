@@ -15,11 +15,13 @@ local prettyprinters = {
       end
     else
       for k, v in pairs(x) do
-        indent(depth)
-        io.stderr:write(tostring(k))
-        io.stderr:write(" = ")
-        prettyprint(v, depth + 1)
-        io.stderr:write(",\n")
+        if k:sub(1, 1) ~= "_" then
+          indent(depth)
+          io.stderr:write(tostring(k))
+          io.stderr:write(" = ")
+          prettyprint(v, depth + 1)
+          io.stderr:write(",\n")
+        end
       end
     end
     indent(depth - 1)
@@ -52,7 +54,6 @@ function prettyprint(x, depth)
   end
 
   printer(x, depth)
-  io.stderr:write("\n")
 end
 
 function trace(x)

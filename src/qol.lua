@@ -7,7 +7,7 @@ end
 local function display_token(token)
   local line_number = 1
   local full_line = ""
-  tr(token)
+  trace(token)
 
   for line in source:gmatch("([^\n]+)\n") do
     if token.line_number == line_number then

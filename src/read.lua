@@ -58,8 +58,8 @@ local function tokenize(source)
           local token = {
             class = class,
             literal = match_to_literal(class, match),
-            line_number = line_number,
-            col_number = col_number,
+            _line_number = line_number,
+            _col_number = col_number,
           }
 
           coroutine.yield(token)

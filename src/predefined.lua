@@ -21,7 +21,12 @@ local function minus(...)
   return sum
 end
 
+local function println(...)
+  print(...)
+end
+
 return {
   ["+"] = plus,
   ["-"] = minus,
+  println = println,
 }
