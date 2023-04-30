@@ -90,6 +90,10 @@ local function parse_list(token, next_token)
   while token.class ~= "parenend" do
     table.insert(elements, parse_expression(token, next_token))
     token = next_token()
+
+    if token == nil then
+      error("unexpected eof")
+    end
   end
 
   return merge(token, { class = "list", elements = elements })

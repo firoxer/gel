@@ -1,4 +1,5 @@
 return {
-  read = require("src.read"),
   eval = require("src.eval"),
+  interpret = require("src.interpret"),
+  read = require("src.read"),
 }
