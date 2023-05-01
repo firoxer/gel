@@ -22,3 +22,9 @@ assert_error("no body", [[
   (let (f (fn ()))
     (f))
 ]])
+
+assert_error("wrong number of arguments", [[
+  (let (f (fn (a b)
+            (+ a b)))
+    (f 1))
+]])

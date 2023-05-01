@@ -99,6 +99,11 @@ local function call(env, node)
     local args = slice(node.elements, 2)
 
     local fn = resolve(env, fn_symbol.literal)    
+
+    if #args ~= #fn.params.elements then
+      error("wrong number of arguments (got " .. #args .. ", want " .. #fn.params.elements .. ")")
+    end
+
     local fn_env = { ["&parent"] = env }
     for i, param in ipairs(fn.params.elements) do
       fn_env[param.literal] = eval(env, args[i])
