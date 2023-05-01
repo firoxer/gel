@@ -1,3 +1,16 @@
+local function equals(...)
+  local first = select(1, ...)
+
+  for i = 2, select('#', ...) do
+    local nth = select(i, ...)
+    if first ~= nth then
+      return false
+    end
+  end
+
+  return true
+end
+
 local function plus(...)
   local sum = 0
 
@@ -21,12 +34,26 @@ local function minus(...)
   return sum
 end
 
+local function times(...)
+  local result = select(1, ...)
+
+  for i = 2, select('#', ...) do
+    local v = select(i, ...)
+    assert(type(v) == "number", "non-number arg to `*`: " .. v)
+    result = result * v
+  end
+
+  return result
+end
+
 local function println(...)
   print(...)
 end
 
 return {
+  ["="] = equals,
   ["+"] = plus,
   ["-"] = minus,
+  ["*"] = times,
   println = println,
 }

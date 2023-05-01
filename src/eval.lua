@@ -24,6 +24,31 @@ local specials = {
     return last_result
   end,
 
+  fn = function(env, node)
+    local params = node.elements[2]
+    local body = node.elements[3]
+    
+    return {
+      class = "fn",
+      params = params,
+      body = body,
+      _line_number = node._line_number,
+      _col_number = node._col_number,
+    }
+  end,
+
+  ["if"] = function(env, node)
+    local condition = node.elements[2]
+    local true_branch = node.elements[3]
+    local false_branch = node.elements[4]
+
+    if eval(env, condition) then
+      return eval(env, true_branch)
+    else
+      return eval(env, false_branch)
+    end
+  end,
+
   let = function(env, node)
     assert(#node.elements == 3, "let should have bindings and body")
     local bindings_list = node.elements[2]
@@ -41,19 +66,6 @@ local specials = {
     end
 
     return eval(new_env, body)
-  end,
-
-  fn = function(env, node)
-    local params = node.elements[2]
-    local body = node.elements[3]
-    
-    return {
-      class = "fn",
-      params = params,
-      body = body,
-      _line_number = node._line_number,
-      _col_number = node._col_number,
-    }
   end,
 }
 
@@ -86,6 +98,9 @@ local function call(env, node)
 end
 
 eval = function(env, node)
+  assert(type(env) == "table")
+  assert(node ~= nil)
+
   if type(node) ~= "table" then -- Hmm
     return node
   end
@@ -105,6 +120,8 @@ eval = function(env, node)
   elseif node.class == "number" then
     return node.literal
   elseif node.class == "string" then
+    return node.literal
+  elseif node.class == "boolean" then
     return node.literal
   else
     qol.display_token(node)    

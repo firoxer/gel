@@ -10,7 +10,7 @@ local function display_token(token)
   trace(token)
 
   for line in source:gmatch("([^\n]+)\n") do
-    if token.line_number == line_number then
+    if token._line_number == line_number then
       full_line = line
       break
     end
@@ -18,7 +18,7 @@ local function display_token(token)
   end
 
   io.stderr:write(full_line, "\n")
-  io.stderr:write(("-"):rep(token.col_number - 1), "^\n")
+  io.stderr:write(("-"):rep(token._col_number - 1), "^\n")
 end
 
 return {
