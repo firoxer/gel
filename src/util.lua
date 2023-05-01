@@ -87,6 +87,18 @@ function merge(tbl1, tbl2)
   return tbl3
 end
 
+function concat(...)
+  local new = {}
+
+  for i = 1, select('#', ...) do
+    for _, e in ipairs(select(i, ...)) do
+      table.insert(new, e)
+    end
+  end
+
+  return new
+end
+
 function shallowcopy(tbl)
   local new = {}
   for k, v in pairs(tbl) do

@@ -26,12 +26,24 @@ local specials = {
 
   fn = function(env, node)
     local params = node.elements[2]
-    local body = node.elements[3]
+    assert(params, "fn has no parameters or body")
+    assert(params.class == "list", "parameters should be a list")
+
+    local body_forms = slice(node.elements, 3)
+    assert(#body_forms > 0, "fn has no body")
+
+    local do_body = {
+      class = "list",
+      elements = concat(
+        { { class = "symbol", literal = "do" } },
+        body_forms
+      )
+    }
     
     return {
       class = "fn",
       params = params,
-      body = body,
+      body = do_body,
       _line_number = node._line_number,
       _col_number = node._col_number,
     }
@@ -74,12 +86,11 @@ local function call(env, node)
 
   if predefined[fn_symbol.literal] then
     local args = {}
-    for i = 2, #node.elements do
-      local element = node.elements[i]
-      if element.class == "symbol" then
-        table.insert(args, resolve(env, node.elements[i].literal))
+    for _, arg in slice(node.elements, 2) do
+      if arg.class == "symbol" then
+        table.insert(args, resolve(env, arg.literal))
       else
-        table.insert(args, node.elements[i].literal)
+        table.insert(args, arg.literal)
       end
     end
 
